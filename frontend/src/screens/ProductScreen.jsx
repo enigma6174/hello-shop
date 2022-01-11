@@ -4,13 +4,28 @@ import Card from "react-bootstrap/Card";
 import Image from "react-bootstrap/Image";
 import Button from "react-bootstrap/Button";
 import ListGroup from "react-bootstrap/ListGroup";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import { Ratings } from "../components/Ratings";
-import products from "../assets/data/products";
+import { getProductData } from "../api/products";
+
+import { useEffect, useState } from "react";
 
 export const ProductScreen = ({ match }) => {
-  const product = products.find((p) => p._id === match.params.id);
+  const { id } = useParams();
+  const [product, setProductData] = useState({});
+
+  useEffect(() => {
+    const getProduct = async () => {
+      try {
+        const response = await getProductData(id);
+        setProductData(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    getProduct();
+  }, [id]);
 
   return (
     <>

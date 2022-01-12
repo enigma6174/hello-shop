@@ -1,9 +1,14 @@
 import express from "express";
 import dotenv from "dotenv";
+import colors from "colors";
 
-import products from "./data/products.js";
+import connectDB from "./config/db.js";
+import productRoutes from "./routes/productRoutes.js";
+import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
 dotenv.config();
+
+connectDB();
 
 const app = express();
 
@@ -11,19 +16,14 @@ app.get("/", (request, response) => {
   response.send("Hello World!");
 });
 
-app.get("/api/products", (request, response) => {
-  response.json(products);
-});
-
-app.get("/api/products/:id", (request, response) => {
-  const product = products.find((p) => p._id === request.params.id);
-  response.json(product);
-});
+app.use("/api/products", productRoutes);
+app.use(notFound);
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 const MODE = process.env.NODE_ENV;
 
 app.listen(
   PORT,
-  console.log(`[INFO] server running in ${MODE} mode on port ${PORT}`)
+  console.log(`[INFO] server running in ${MODE} mode on port ${PORT}`.cyan.bold)
 );

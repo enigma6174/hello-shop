@@ -58,7 +58,30 @@ export const getUserProfile = asyncHandler(async (request, response) => {
       isAdmin: user.isAdmin,
     });
   } else {
-    response.status(401);
+    response.status(404);
+    throw new Error("User Not Found");
+  }
+});
+
+export const updateUserProfile = asyncHandler(async (request, response) => {
+  const user = await User.findById(request.user._id);
+  if (user) {
+    user.name = request.body.name || user.name;
+    user.email = request.body.email || user.email;
+    if (request.body.password) {
+      user.password = request.body.password;
+    }
+
+    const updatedUser = await user.save();
+    response.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      isAdmin: updatedUser.isAdmin,
+      token: generateToken(updatedUser._id),
+    });
+  } else {
+    response.status(404);
     throw new Error("User Not Found");
   }
 });
